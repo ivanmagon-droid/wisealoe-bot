@@ -1,0 +1,136 @@
+{
+  "name": "FLP_Instagram_DM_Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "instagram-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-get",
+      "name": "Verifica Webhook Meta",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 200],
+      "webhookId": "instagram-webhook-get"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "id": "respond-challenge",
+      "name": "Risposta Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 200]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instagram-webhook",
+        "options": {}
+      },
+      "id": "webhook-post",
+      "name": "Ricevi Evento Instagram",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 440],
+      "webhookId": "instagram-webhook-post"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst entry = body.entry?.[0];\nconst change = entry?.changes?.[0];\nconst value = change?.value;\n\nif (!value) return [{ json: { valid: false, is_triggered: false } }];\n\nconst commentText = (value.text || '').toLowerCase();\nconst triggerWords = ['info', 'lavoro', 'interessato', 'opportunità', 'opportunita', 'come funziona', 'voglio sapere'];\nconst isTriggered = triggerWords.some(word => commentText.includes(word));\n\nreturn [{\n  json: {\n    valid: true,\n    is_triggered: isTriggered,\n    event_type: change?.field || '',\n    sender_id: value.from?.id || '',\n    sender_username: value.from?.username || '',\n    comment_text: value.text || '',\n    comment_id: value.id || '',\n    media_id: value.media?.id || ''\n  }\n}];"
+      },
+      "id": "parse-event",
+      "name": "Elabora Evento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 440]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.is_triggered }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
+            },
+            {
+              "leftValue": "={{ $json.event_type }}",
+              "rightValue": "comments",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-trigger",
+      "name": "Parola chiave rilevata?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 440]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v19.0/17841444278071442/messages",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"recipient\": {\"id\": \"{{ $json.sender_id }}\"},\n  \"message\": {\n    \"text\": \"Ciao {{ $json.sender_username ? '@' + $json.sender_username : '' }}! 🌿\\n\\nGrazie per il tuo interesse in Forever Living!\\n\\nSono Ivan, incaricato certificato.\\nPrenota una call gratuita di 30 min — ti spiego tutto senza impegno:\\n\\n👉 https://cal.com/tuttoaloe/opportunita\\n\\nA presto! 💚\"\n  },\n  \"access_token\": \"INSERISCI_QUI_IL_TOKEN_SYSTEM_USER\"\n}",
+        "options": {}
+      },
+      "id": "send-dm",
+      "name": "Invia DM Instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [880, 340]
+    },
+    {
+      "parameters": {
+        "chatId": "8285408458",
+        "text": "=🎯 NUOVO LEAD INSTAGRAM!\n\n👤 @{{ $json.sender_username }}\n💬 Commento: \"{{ $json.comment_text }}\"\n\n✅ DM automatico inviato con link prenotazione\n⏳ Aspetta la call su cal.com!",
+        "additionalFields": {}
+      },
+      "id": "notify-telegram",
+      "name": "Notifica Lead Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1100, 340],
+      "credentials": {
+        "telegramApi": {
+          "id": "1ms8YQZP6bkSrGKt",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Verifica Webhook Meta": {
+      "main": [[{ "node": "Risposta Challenge", "type": "main", "index": 0 }]]
+    },
+    "Ricevi Evento Instagram": {
+      "main": [[{ "node": "Elabora Evento", "type": "main", "index": 0 }]]
+    },
+    "Elabora Evento": {
+      "main": [[{ "node": "Parola chiave rilevata?", "type": "main", "index": 0 }]]
+    },
+    "Parola chiave rilevata?": {
+      "main": [
+        [{ "node": "Invia DM Instagram", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Invia DM Instagram": {
+      "main": [[{ "node": "Notifica Lead Telegram", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": []
+}
