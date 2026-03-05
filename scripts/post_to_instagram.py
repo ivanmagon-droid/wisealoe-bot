@@ -57,7 +57,21 @@ def mark_as_posted(data, post_id, queue_file="content/queue.json"):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
+def debug_token():
+    print("=== DEBUG TOKEN ===")
+    r = requests.get(f"{BASE_URL}/me", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name'})
+    print(f"Token identity: {r.json()}")
+
+    r2 = requests.get(f"{BASE_URL}/me/accounts", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name,instagram_business_account'})
+    print(f"Pages accessibili: {r2.json()}")
+
+    r3 = requests.get(f"{BASE_URL}/{INSTAGRAM_ACCOUNT_ID}", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name,username'})
+    print(f"IG Account {INSTAGRAM_ACCOUNT_ID}: {r3.json()}")
+    print("=== FINE DEBUG ===")
+
+
 def main():
+    debug_token()
     post, data = get_next_post()
     if not post:
         print("Nessun post da pubblicare oggi.")
