@@ -5,9 +5,25 @@ from datetime import datetime
 import sys
 
 INSTAGRAM_ACCESS_TOKEN = os.environ['INSTAGRAM_ACCESS_TOKEN']
-INSTAGRAM_ACCOUNT_ID = os.environ['INSTAGRAM_ACCOUNT_ID']
+FACEBOOK_PAGE_ID = "966343003236688"
 GRAPH_API_VERSION = "v19.0"
 BASE_URL = f"https://graph.facebook.com/{GRAPH_API_VERSION}"
+
+
+def get_instagram_account_id():
+    url = f"{BASE_URL}/{FACEBOOK_PAGE_ID}"
+    params = {
+        'fields': 'instagram_business_account',
+        'access_token': INSTAGRAM_ACCESS_TOKEN
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+    ig_id = data.get('instagram_business_account', {}).get('id')
+    if not ig_id:
+        print(f"Errore get IG account: {data}")
+        sys.exit(1)
+    print(f"Instagram Account ID trovato: {ig_id}")
+    return ig_id
 
 
 def get_next_post(queue_file="content/queue.json"):
@@ -20,8 +36,8 @@ def get_next_post(queue_file="content/queue.json"):
     return None, data
 
 
-def create_media_container(image_url, caption):
-    url = f"{BASE_URL}/{INSTAGRAM_ACCOUNT_ID}/media"
+def create_media_container(ig_account_id, image_url, caption):
+    url = f"{BASE_URL}/{ig_account_id}/media"
     params = {
         'image_url': image_url,
         'caption': caption,
@@ -34,8 +50,8 @@ def create_media_container(image_url, caption):
     return response.json()['id']
 
 
-def publish_media(container_id):
-    url = f"{BASE_URL}/{INSTAGRAM_ACCOUNT_ID}/media_publish"
+def publish_media(ig_account_id, container_id):
+    url = f"{BASE_URL}/{ig_account_id}/media_publish"
     params = {
         'creation_id': container_id,
         'access_token': INSTAGRAM_ACCESS_TOKEN
@@ -57,21 +73,8 @@ def mark_as_posted(data, post_id, queue_file="content/queue.json"):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-def debug_token():
-    print("=== DEBUG TOKEN ===")
-    r = requests.get(f"{BASE_URL}/me", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name'})
-    print(f"Token identity: {r.json()}")
-
-    r2 = requests.get(f"{BASE_URL}/me/accounts", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name,instagram_business_account'})
-    print(f"Pages accessibili: {r2.json()}")
-
-    r3 = requests.get(f"{BASE_URL}/{INSTAGRAM_ACCOUNT_ID}", params={'access_token': INSTAGRAM_ACCESS_TOKEN, 'fields': 'id,name,username'})
-    print(f"IG Account {INSTAGRAM_ACCOUNT_ID}: {r3.json()}")
-    print("=== FINE DEBUG ===")
-
-
 def main():
-    debug_token()
+    ig_account_id = get_instagram_account_id()
     post, data = get_next_post()
     if not post:
         print("Nessun post da pubblicare oggi.")
@@ -79,10 +82,10 @@ def main():
 
     print(f"Pubblicando post ID {post['id']}: {post['caption'][:60]}...")
 
-    container_id = create_media_container(post['image_url'], post['caption'])
+    container_id = create_media_container(ig_account_id, post['image_url'], post['caption'])
     print(f"Container creato: {container_id}")
 
-    media_id = publish_media(container_id)
+    media_id = publish_media(ig_account_id, container_id)
     print(f"Post pubblicato! Media ID: {media_id}")
 
     mark_as_posted(data, post['id'])
