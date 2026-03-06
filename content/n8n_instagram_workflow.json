@@ -79,7 +79,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://graph.facebook.com/v19.0/17841444278071442/messages",
+        "url": "https://graph.facebook.com/v19.0/IL_TUO_INSTAGRAM_ACCOUNT_ID/messages",
         "sendBody": true,
         "contentType": "json",
         "body": "={\n  \"recipient\": {\"id\": \"{{ $json.sender_id }}\"},\n  \"message\": {\n    \"text\": \"Ciao {{ $json.sender_username ? '@' + $json.sender_username : '' }}! 🌿\\n\\nGrazie per il tuo interesse in Forever Living!\\n\\nSono Ivan, incaricato certificato.\\nPrenota una call gratuita di 30 min — ti spiego tutto senza impegno:\\n\\n👉 https://cal.com/tuttoaloe/opportunita\\n\\nA presto! 💚\"\n  },\n  \"access_token\": \"INSERISCI_QUI_IL_TOKEN_SYSTEM_USER\"\n}",
@@ -93,7 +93,7 @@
     },
     {
       "parameters": {
-        "chatId": "8285408458",
+        "chatId": "IL_TUO_TELEGRAM_CHAT_ID",
         "text": "=🎯 NUOVO LEAD INSTAGRAM!\n\n👤 @{{ $json.sender_username }}\n💬 Commento: \"{{ $json.comment_text }}\"\n\n✅ DM automatico inviato con link prenotazione\n⏳ Aspetta la call su cal.com!",
         "additionalFields": {}
       },
@@ -104,8 +104,8 @@
       "position": [1100, 340],
       "credentials": {
         "telegramApi": {
-          "id": "1ms8YQZP6bkSrGKt",
-          "name": "Telegram account 2"
+          "id": "IL_TUO_TELEGRAM_CREDENTIAL_ID",
+          "name": "Telegram account"
         }
       }
     }
