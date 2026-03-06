@@ -3,6 +3,7 @@ import json
 import requests
 from datetime import datetime
 import sys
+import time
 
 INSTAGRAM_ACCESS_TOKEN = os.environ['INSTAGRAM_ACCESS_TOKEN']
 FACEBOOK_PAGE_ID = "966343003236688"
@@ -50,6 +51,27 @@ def create_media_container(ig_account_id, image_url, caption):
     return response.json()['id']
 
 
+def wait_for_container_ready(container_id, max_attempts=10, wait_seconds=5):
+    url = f"{BASE_URL}/{container_id}"
+    params = {
+        'fields': 'status_code,status',
+        'access_token': INSTAGRAM_ACCESS_TOKEN
+    }
+    for attempt in range(1, max_attempts + 1):
+        response = requests.get(url, params=params)
+        data = response.json()
+        status = data.get('status_code', '')
+        print(f"Tentativo {attempt}: container status = {status}")
+        if status == 'FINISHED':
+            return True
+        if status == 'ERROR':
+            print(f"Errore container: {data}")
+            sys.exit(1)
+        time.sleep(wait_seconds)
+    print("Timeout: container non pronto dopo i tentativi massimi.")
+    sys.exit(1)
+
+
 def publish_media(ig_account_id, container_id):
     url = f"{BASE_URL}/{ig_account_id}/media_publish"
     params = {
@@ -84,6 +106,8 @@ def main():
 
     container_id = create_media_container(ig_account_id, post['image_url'], post['caption'])
     print(f"Container creato: {container_id}")
+
+    wait_for_container_ready(container_id)
 
     media_id = publish_media(ig_account_id, container_id)
     print(f"Post pubblicato! Media ID: {media_id}")
