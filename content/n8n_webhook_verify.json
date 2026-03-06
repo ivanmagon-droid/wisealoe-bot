@@ -1,0 +1,39 @@
+{
+  "name": "Meta Webhook Verify",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "instagram-webhook",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-verify",
+      "name": "Verifica Webhook Meta",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300],
+      "webhookId": "instagram-webhook-verify"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "id": "respond-challenge",
+      "name": "Risposta Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [440, 300]
+    }
+  ],
+  "connections": {
+    "Verifica Webhook Meta": {
+      "main": [[{ "node": "Risposta Challenge", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "tags": []
+}
