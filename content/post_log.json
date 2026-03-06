@@ -1,0 +1,28 @@
+{
+  "attempts": [
+    {
+      "post_id": 1,
+      "container_id": "18097456031475936",
+      "status": "container_error_500",
+      "timestamp": "2026-03-06T07:30:00"
+    },
+    {
+      "post_id": 1,
+      "container_id": "18097456280475936",
+      "status": "publish_error_9007",
+      "timestamp": "2026-03-06T07:50:00"
+    },
+    {
+      "post_id": 1,
+      "container_id": "published",
+      "status": "success",
+      "timestamp": "2026-03-06T08:10:00"
+    },
+    {
+      "post_id": 1,
+      "container_id": "18097459565475936",
+      "status": "publish_error_9007_duplicate",
+      "timestamp": "2026-03-06T08:30:00"
+    }
+  ]
+}

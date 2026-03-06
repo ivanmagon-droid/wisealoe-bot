@@ -5,6 +5,9 @@ on:
     - cron: '0 8 * * *'  # Ogni giorno alle 09:00 ora italiana (CET=UTC+1)
   workflow_dispatch:      # Trigger manuale dalla dashboard GitHub
 
+permissions:
+  contents: write
+
 jobs:
   post:
     runs-on: ubuntu-latest
@@ -33,6 +36,6 @@ jobs:
         run: |
           git config --local user.email "bot@wisealoe.com"
           git config --local user.name "WiseAloe Bot"
-          git add content/queue.json
+          git add content/queue.json content/post_log.json
           git diff --staged --quiet || git commit -m "chore: mark post as published [skip ci]"
           git push

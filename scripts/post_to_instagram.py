@@ -85,6 +85,34 @@ def publish_media(ig_account_id, container_id):
     return response.json()['id']
 
 
+def log_attempt(post_id, container_id, status, log_file="content/post_log.json"):
+    try:
+        with open(log_file, 'r', encoding='utf-8') as f:
+            log = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        log = {"attempts": []}
+    log["attempts"].append({
+        "post_id": post_id,
+        "container_id": container_id,
+        "status": status,
+        "timestamp": datetime.now().isoformat()
+    })
+    with open(log_file, 'w', encoding='utf-8') as f:
+        json.dump(log, f, ensure_ascii=False, indent=2)
+
+
+def already_published(post_id, log_file="content/post_log.json"):
+    try:
+        with open(log_file, 'r', encoding='utf-8') as f:
+            log = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return False
+    return any(
+        a["post_id"] == post_id and a["status"] == "success"
+        for a in log.get("attempts", [])
+    )
+
+
 def mark_as_posted(data, post_id, queue_file="content/queue.json"):
     for post in data['posts']:
         if post['id'] == post_id:
@@ -102,15 +130,22 @@ def main():
         print("Nessun post da pubblicare oggi.")
         sys.exit(0)
 
+    if already_published(post['id']):
+        print(f"Post ID {post['id']} già pubblicato (log). Aggiorno queue e esco.")
+        mark_as_posted(data, post['id'])
+        sys.exit(0)
+
     print(f"Pubblicando post ID {post['id']}: {post['caption'][:60]}...")
 
     container_id = create_media_container(ig_account_id, post['image_url'], post['caption'])
     print(f"Container creato: {container_id}")
+    log_attempt(post['id'], container_id, "container_created")
 
     wait_for_container_ready(container_id)
 
     media_id = publish_media(ig_account_id, container_id)
     print(f"Post pubblicato! Media ID: {media_id}")
+    log_attempt(post['id'], media_id, "success")
 
     mark_as_posted(data, post['id'])
     print("Queue aggiornata.")
