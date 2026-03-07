@@ -23,6 +23,18 @@
       "container_id": "18097459565475936",
       "status": "publish_error_9007_duplicate",
       "timestamp": "2026-03-06T08:30:00"
+    },
+    {
+      "post_id": 2,
+      "container_id": "18097617287475936",
+      "status": "container_created",
+      "timestamp": "2026-03-07T09:00:48.670167"
+    },
+    {
+      "post_id": 2,
+      "container_id": "18095565296063675",
+      "status": "success",
+      "timestamp": "2026-03-07T09:00:56.693917"
     }
   ]
 }
