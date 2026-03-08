@@ -60,7 +60,13 @@
       "id": 8,
       "scheduled_date": "2026-03-20",
       "caption": "🗓️ Come appare una settimana tipo da incaricato Forever:\n\nLunedì → rispondo ai messaggi dei clienti (20 min)\nMartedì → pubblico un contenuto su Instagram\nMercoledì → call con una persona interessata all'opportunità\nGiovedì → ordine per un cliente abituale\nVenerdì → check del team + call formazione\nWeekend → rispondo ai DM, nessun obbligo\n\nNon è una seconda vita.\nÈ un sistema che gira anche quando sei impegnato.\n\nSe vuoi vedere com'è nel concreto, prenota una call. 👇\nhttps://cal.com/tuttoaloe/opportunita\n\n#ForeverLiving #LavoroAgile #BusinessOnline #IncaricatoForever #ForeverLivingItalia",
-      "image_url": "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08.jpg",
+      "image_urls": [
+        "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08_1.jpg",
+        "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08_2.jpg",
+        "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08_3.jpg",
+        "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08_4.jpg",
+        "https://raw.githubusercontent.com/ivanmagon-droid/wisealoe-bot/main/media/post_08_5.jpg"
+      ],
       "posted": false,
       "posted_at": null
     },

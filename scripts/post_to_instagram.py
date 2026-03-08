@@ -51,6 +51,39 @@ def create_media_container(ig_account_id, image_url, caption):
     return response.json()['id']
 
 
+def create_carousel_item_container(ig_account_id, image_url):
+    url = f"{BASE_URL}/{ig_account_id}/media"
+    params = {
+        'image_url': image_url,
+        'is_carousel_item': 'true',
+        'access_token': INSTAGRAM_ACCESS_TOKEN
+    }
+    response = requests.post(url, params=params)
+    if not response.ok:
+        print(f"Errore creazione carousel item: {response.text}")
+        response.raise_for_status()
+    return response.json()['id']
+
+
+def create_carousel_container(ig_account_id, children_ids, caption):
+    url = f"{BASE_URL}/{ig_account_id}/media"
+    params = {
+        'media_type': 'CAROUSEL',
+        'children': ','.join(children_ids),
+        'caption': caption,
+        'access_token': INSTAGRAM_ACCESS_TOKEN
+    }
+    response = requests.post(url, params=params)
+    if not response.ok:
+        print(f"Errore creazione carousel container: {response.text}")
+        response.raise_for_status()
+    return response.json()['id']
+
+
+def is_carousel(post):
+    return len(post.get('image_urls', [])) >= 2
+
+
 def wait_for_container_ready(container_id, max_attempts=10, wait_seconds=5):
     url = f"{BASE_URL}/{container_id}"
     params = {
@@ -137,9 +170,23 @@ def main():
 
     print(f"Pubblicando post ID {post['id']}: {post['caption'][:60]}...")
 
-    container_id = create_media_container(ig_account_id, post['image_url'], post['caption'])
-    print(f"Container creato: {container_id}")
-    log_attempt(post['id'], container_id, "container_created")
+    if is_carousel(post):
+        print(f"Carosello con {len(post['image_urls'])} immagini")
+        children_ids = []
+        for i, img_url in enumerate(post['image_urls'], 1):
+            print(f"Creando item {i}/{len(post['image_urls'])}: {img_url}")
+            child_id = create_carousel_item_container(ig_account_id, img_url)
+            print(f"Item {i} container: {child_id}")
+            wait_for_container_ready(child_id)
+            children_ids.append(child_id)
+
+        container_id = create_carousel_container(ig_account_id, children_ids, post['caption'])
+        print(f"Carousel container creato: {container_id}")
+        log_attempt(post['id'], container_id, "carousel_container_created")
+    else:
+        container_id = create_media_container(ig_account_id, post['image_url'], post['caption'])
+        print(f"Container creato: {container_id}")
+        log_attempt(post['id'], container_id, "container_created")
 
     wait_for_container_ready(container_id)
 
