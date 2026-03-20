@@ -95,6 +95,18 @@
       "container_id": "17976124023006759",
       "status": "success",
       "timestamp": "2026-03-18T08:53:25.129089"
+    },
+    {
+      "post_id": 8,
+      "container_id": "18099345851475936",
+      "status": "carousel_container_created",
+      "timestamp": "2026-03-20T08:43:49.451813"
+    },
+    {
+      "post_id": 8,
+      "container_id": "18075227357159095",
+      "status": "success",
+      "timestamp": "2026-03-20T08:43:59.147563"
     }
   ]
 }
